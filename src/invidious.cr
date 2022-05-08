@@ -326,6 +326,12 @@ before_all do |env|
   end
 
   env.set "current_page", URI.encode_www_form(current_page)
+
+  unregistered_path_whitelist = {"/", "/login", "/licenses", "/privacy"}
+  if !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path) && CONFIG.login_only
+    env.response.headers["Location"] = "/login"
+    halt env, status_code: 302
+  end
 end
 
 {% unless flag?(:api_only) %}
